@@ -25,10 +25,7 @@ class TelegramChatAgent:
             for chat in chats
         }
 
-        self.telegram_agent = TelegramAgent(
-            telegram_api_id=os.getenv("TELEGRAM_API_ID"),
-            telegram_api_hash=os.getenv("TELEGRAM_API_HASH")
-        )
+        self.telegram_agent = TelegramAgent()
     
         self.llm = GigaChat(
             verify_ssl_certs=False, 
@@ -111,7 +108,6 @@ class TelegramChatAgent:
             print(selection)
             # теперь selection — это Python-объект ChatSelection
             chat_ids = selection.chat_ids
-            lookback_period = selection.hours * 3600
 
             # 3. Загружаем сообщения
             all_contexts = []
@@ -119,7 +115,7 @@ class TelegramChatAgent:
             for chat_id in chat_ids:
                 chat_name = self.get_chat_name(chat_id)
                 all_contexts.append(f"Сообщения из чата {chat_name} :")
-                messages = await self.telegram_agent.load_messages(chat_id=chat_id, lookback_period=lookback_period)
+                messages = await self.telegram_agent.load_messages(chat_id=chat_id, hours=selection.hours)
                 if not messages:
                     return f"В чате {chat_name} нет новых сообщений за последние {selection.hours}ч."
             
